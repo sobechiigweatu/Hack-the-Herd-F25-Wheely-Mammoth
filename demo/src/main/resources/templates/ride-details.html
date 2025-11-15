@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ride Details - Wheely Mammoth</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/style.css}">
+    <!-- Force purple theme override -->
+    <style>
+        :root {
+            --bs-primary: #311a4d !important;
+            --bs-primary-rgb: 49, 26, 77 !important;
+        }
+        .bg-primary, .navbar.bg-primary {
+            background-color: #311a4d !important;
+        }
+        .btn-primary {
+            background-color: #311a4d !important;
+            border-color: #311a4d !important;
+        }
+        .text-primary {
+            color: #311a4d !important;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" th:href="@{/}">
+                <img th:src="@{/WheelyMammoth.png}" src="/WheelyMammoth.png" alt="Wheely Mammoth Logo" class="d-inline-block align-top">
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" th:href="@{/rides}">Find Rides</a></li>
+                    <li class="nav-item" th:if="${currentUser != null}"><a class="nav-link" th:href="@{/rides/my-rides}">My Rides</a></li>
+                    <li class="nav-item" th:if="${currentUser != null && currentUser.isDriver}"><a class="nav-link" th:href="@{/rides/create}">Create Ride</a></li>
+                    <li class="nav-item" th:if="${currentUser != null}"><a class="nav-link" th:href="@{/profile}">Profile</a></li>
+                    <li class="nav-item" th:if="${currentUser == null}"><a class="nav-link" th:href="@{/login}">Login</a></li>
+                    <li class="nav-item" th:if="${currentUser != null}"><a class="nav-link" th:href="@{/logout}">Logout</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container my-5">
+        <div class="row">
+            <div class="col-md-8 mx-auto">
+                <div class="card shadow-lg">
+                    <div class="card-body p-5">
+                        <h2 class="mb-4">Ride Details</h2>
+
+                        <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
+                            <span th:text="${success}"></span>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+
+                        <div th:if="${ride != null}">
+                            <div class="mb-4">
+                                <h5>Route</h5>
+                                <p class="mb-2">
+                                    <strong>From:</strong> <span th:text="${ride.pickupLocation.address}"></span>
+                                </p>
+                                <p class="mb-2">
+                                    <strong>To:</strong> <span th:text="${ride.dropoffLocation.address}"></span>
+                                </p>
+                            </div>
+
+                            <div class="mb-4">
+                                <h5>Schedule</h5>
+                                <p class="mb-0">
+                                    <strong>Departure:</strong> 
+                                    <span th:text="${#temporals.format(ride.departureTime, 'MMMM dd, yyyy hh:mm a')}"></span>
+                                </p>
+                            </div>
+
+                            <div class="mb-4">
+                                <h5>Pricing & Availability</h5>
+                                <p class="mb-2">
+                                    <strong>Price per seat:</strong> 
+                                    <span class="text-primary fs-4">$<span th:text="${#numbers.formatDecimal(ride.price, 1, 2)}"></span></span>
+                                </p>
+                                <p class="mb-0">
+                                    <strong>Seats available:</strong> 
+                                    <span class="badge bg-success" th:text="${ride.seatsAvailable}"></span>
+                                </p>
+                            </div>
+
+                            <div class="mb-4" th:if="${driver != null}">
+                                <h5>Driver</h5>
+                                <p class="mb-2">
+                                    <strong>Name:</strong> <span th:text="${driver.name}"></span>
+                                </p>
+                                <p class="mb-0" th:if="${driver.rating > 0}">
+                                    <strong>Rating:</strong> 
+                                    <span class="badge bg-warning text-dark">
+                                        ⭐ <span th:text="${#numbers.formatDecimal(driver.rating, 1, 1)}"></span>
+                                    </span>
+                                </p>
+                            </div>
+
+                            <!-- Request Ride Button (for passengers) -->
+                            <div th:if="${currentUser != null && !currentUser.isDriver}" class="mb-4">
+                                <form th:action="@{'/rides/request'}" method="post">
+                                    <input type="hidden" name="rideId" th:value="${ride.rideId}">
+                                    <button type="submit" class="btn btn-primary btn-lg w-100">Request This Ride</button>
+                                </form>
+                            </div>
+
+                            <!-- Pending Requests (for driver) -->
+                            <div th:if="${currentUser != null && currentUser.isDriver && currentUser.userId == ride.driverId && requests != null && !requests.isEmpty()}">
+                                <h5 class="mt-4 mb-3">Pending Requests</h5>
+                                <div class="list-group">
+                                    <div class="list-group-item" th:each="request : ${requests}">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div>
+                                                <strong>Request ID:</strong> <span th:text="${request.requestId}"></span>
+                                                <br>
+                                                <small class="text-muted" th:text="${#temporals.format(request.timestamp, 'MMM dd, yyyy hh:mm a')}"></small>
+                                            </div>
+                                            <div>
+                                                <form th:action="@{'/rides/request/' + ${request.requestId} + '/accept'}" method="post" class="d-inline">
+                                                    <button type="submit" class="btn btn-success btn-sm">Accept</button>
+                                                </form>
+                                                <form th:action="@{'/rides/request/' + ${request.requestId} + '/decline'}" method="post" class="d-inline">
+                                                    <button type="submit" class="btn btn-danger btn-sm">Decline</button>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div th:if="${currentUser == null}" class="alert alert-info">
+                                <a th:href="@{/login}">Login</a> to request this ride.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+

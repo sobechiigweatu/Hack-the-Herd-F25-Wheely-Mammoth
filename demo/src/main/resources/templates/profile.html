@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile - Wheely Mammoth</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/style.css}">
+    <!-- Force purple theme override -->
+    <style>
+        :root {
+            --bs-primary: #311a4d !important;
+            --bs-primary-rgb: 49, 26, 77 !important;
+        }
+        .bg-primary, .navbar.bg-primary {
+            background-color: #311a4d !important;
+        }
+        .btn-primary {
+            background-color: #311a4d !important;
+            border-color: #311a4d !important;
+        }
+        .text-primary {
+            color: #311a4d !important;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" th:href="@{/}">
+                <img th:src="@{/WheelyMammoth.png}" src="/WheelyMammoth.png" alt="Wheely Mammoth Logo" class="d-inline-block align-top">
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" th:href="@{/rides}">Find Rides</a></li>
+                    <li class="nav-item"><a class="nav-link" th:href="@{/rides/my-rides}">My Rides</a></li>
+                    <li class="nav-item"><a class="nav-link active" th:href="@{/profile}">Profile</a></li>
+                    <li class="nav-item"><a class="nav-link" th:href="@{/logout}">Logout</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container my-5">
+        <div class="row">
+            <div class="col-md-8 mx-auto">
+                <h2 class="mb-4">My Profile</h2>
+
+                <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
+                    <span th:text="${success}"></span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+
+                <!-- Profile Info -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title mb-4">Personal Information</h5>
+                        <form th:action="@{/profile/update}" method="post">
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label class="form-label">Student ID</label>
+                                    <input type="text" class="form-control" th:value="${user.studentId}" disabled>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Email</label>
+                                    <input type="email" class="form-control" name="email" th:value="${user.email}" required>
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label class="form-label">Full Name</label>
+                                    <input type="text" class="form-control" name="name" th:value="${user.name}" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Phone</label>
+                                    <input type="tel" class="form-control" name="phone" th:value="${user.phone}" required>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Rating</label>
+                                <div>
+                                    <span class="badge bg-warning text-dark" th:if="${user.rating > 0}">
+                                        ⭐ <span th:text="${#numbers.formatDecimal(user.rating, 1, 1)}"></span> 
+                                        (<span th:text="${user.ratingCount}"></span> reviews)
+                                    </span>
+                                    <span class="text-muted" th:if="${user.rating == 0}">No ratings yet</span>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Update Profile</button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Driver Status -->
+                <div class="card shadow-sm mb-4" th:if="${user.isDriver}">
+                    <div class="card-body">
+                        <h5 class="card-title mb-3">Driver Information</h5>
+                        <div th:if="${driver != null}">
+                            <p class="mb-2">
+                                <strong>Status:</strong> 
+                                <span class="badge" th:classappend="${driver.approved} ? 'bg-success' : 'bg-warning'">
+                                    <span th:text="${driver.approved} ? 'Approved' : 'Pending Approval'"></span>
+                                </span>
+                            </p>
+                            <div th:if="${driver.vehicle != null}">
+                                <p class="mb-1"><strong>Vehicle:</strong> <span th:text="${driver.vehicle}"></span></p>
+                                <p class="mb-0"><strong>License Plate:</strong> <span th:text="${driver.vehicle.licensePlate}"></span></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Become a Driver -->
+                <div class="card shadow-sm" th:if="${!user.isDriver}">
+                    <div class="card-body text-center">
+                        <h5 class="card-title mb-3">Become a Driver</h5>
+                        <p class="text-muted mb-4">Start offering rides and earn money while helping fellow students!</p>
+                        <a th:href="@{/profile/driver-register}" class="btn btn-primary">Register as Driver</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

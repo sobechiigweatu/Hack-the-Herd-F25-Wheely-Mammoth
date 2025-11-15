@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Find Rides - Wheely Mammoth</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/style.css}">
+    <!-- Force purple theme override -->
+    <style>
+        :root {
+            --bs-primary: #311a4d !important;
+            --bs-primary-rgb: 49, 26, 77 !important;
+        }
+        .bg-primary, .navbar.bg-primary {
+            background-color: #311a4d !important;
+        }
+        .btn-primary {
+            background-color: #311a4d !important;
+            border-color: #311a4d !important;
+        }
+        .text-primary {
+            color: #311a4d !important;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" th:href="@{/}">
+                <img th:src="@{/WheelyMammoth.png}" src="/WheelyMammoth.png" alt="Wheely Mammoth Logo" class="d-inline-block align-top">
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" th:href="@{/rides}">Find Rides</a>
+                    </li>
+                    <li class="nav-item" th:if="${currentUser != null}">
+                        <a class="nav-link" th:href="@{/rides/my-rides}">My Rides</a>
+                    </li>
+                    <li class="nav-item" th:if="${currentUser != null && currentUser.isDriver}">
+                        <a class="nav-link" th:href="@{/rides/create}">Create Ride</a>
+                    </li>
+                    <li class="nav-item" th:if="${currentUser != null}">
+                        <a class="nav-link" th:href="@{/profile}">Profile</a>
+                    </li>
+                    <li class="nav-item" th:if="${currentUser == null}">
+                        <a class="nav-link" th:href="@{/login}">Login</a>
+                    </li>
+                    <li class="nav-item" th:if="${currentUser != null}">
+                        <a class="nav-link" th:href="@{/logout}">Logout</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container my-5">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2>Available Rides</h2>
+            <a th:href="@{/rides/create}" class="btn btn-primary" th:if="${currentUser != null && currentUser.isDriver}">
+                + Create Ride
+            </a>
+        </div>
+
+        <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
+            <span th:text="${success}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+
+        <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+            <span th:text="${error}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+
+        <div th:if="${rides != null && !rides.isEmpty()}" class="row">
+            <div class="col-md-6 col-lg-4 mb-4" th:each="ride : ${rides}">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <h5 class="card-title mb-0">Ride to <span th:text="${ride.dropoffLocation.address}"></span></h5>
+                            <span class="badge bg-success" th:text="${ride.seatsAvailable} + ' seats'"></span>
+                        </div>
+                        
+                        <p class="text-muted mb-2">
+                            <strong>From:</strong> <span th:text="${ride.pickupLocation.address}"></span>
+                        </p>
+                        <p class="text-muted mb-2">
+                            <strong>To:</strong> <span th:text="${ride.dropoffLocation.address}"></span>
+                        </p>
+                        
+                        <div class="mb-3">
+                            <p class="mb-1">
+                                <i class="bi bi-calendar"></i> 
+                                <span th:text="${#temporals.format(ride.departureTime, 'MMM dd, yyyy')}"></span>
+                            </p>
+                            <p class="mb-0 text-muted small">
+                                <i class="bi bi-clock"></i> 
+                                <span th:text="${#temporals.format(ride.departureTime, 'hh:mm a')}"></span>
+                            </p>
+                        </div>
+                        
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h4 class="text-primary mb-0">$<span th:text="${#numbers.formatDecimal(ride.price, 1, 2)}"></span></h4>
+                            <small class="text-muted" th:if="${driverNames != null}">
+                                Driver: <span th:text="${driverNames[ride.rideId]}"></span>
+                            </small>
+                        </div>
+                        
+                        <div class="d-grid gap-2">
+                            <a th:href="@{/rides/{id}(id=${ride.rideId})}" class="btn btn-primary">View Details</a>
+                            <form th:action="@{'/rides/request'}" method="post" th:if="${currentUser != null && !currentUser.isDriver}">
+                                <input type="hidden" name="rideId" th:value="${ride.rideId}">
+                                <button type="submit" class="btn btn-outline-primary w-100">Request Ride</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div th:if="${rides == null || rides.isEmpty()}" class="text-center py-5">
+            <div class="display-1 mb-3">🚗</div>
+            <h3>No rides available at the moment</h3>
+            <p class="text-muted">Check back later or create your own ride!</p>
+            <a th:href="@{/rides/create}" class="btn btn-primary mt-3" th:if="${currentUser != null && currentUser.isDriver}">
+                Create a Ride
+            </a>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+
