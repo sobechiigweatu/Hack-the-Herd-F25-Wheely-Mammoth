@@ -1,0 +1,348 @@
+/* Modern, Beautiful CSS for Wheely Mammoth - Amherst Purple Theme */
+
+:root {
+    /* Amherst College Purple Theme */
+    --primary-color: #311a4d;
+    --primary-dark: #4D1530;
+    --primary-light: #8B2A5A;
+    --secondary-color: #9B6FA8;
+    --accent-color: #B88BC4;
+    --success-color: #28a745;
+    --danger-color: #dc3545;
+    --warning-color: #ffc107;
+    --info-color: #17a2b8;
+    --light-bg: #f8f9fa;
+    --dark-text: #212529;
+    --border-radius: 0.5rem;
+    --shadow: 0 0.125rem 0.25rem rgba(108, 29, 69, 0.15);
+    --shadow-lg: 0 1rem 3rem rgba(108, 29, 69, 0.25);
+    
+    /* Override Bootstrap 5 CSS Variables with Purple */
+    --bs-primary: #311a4d !important;
+    --bs-primary-rgb: 49, 26, 77 !important;
+    --bs-primary-bg-subtle: #311a4d !important;
+    --bs-primary-border-subtle: #311a4d !important;
+    --bs-primary-text-emphasis: #311a4d !important;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    color: var(--dark-text);
+    background-color: var(--light-bg);
+    line-height: 1.6;
+}
+
+/* Smooth transitions */
+* {
+    transition: all 0.2s ease-in-out;
+}
+
+/* Logo styling */
+.navbar-brand {
+    display: flex;
+    align-items: center;
+    padding: 0.5rem 0;
+}
+
+.navbar-brand img {
+    height: 50px;
+    width: auto;
+    max-width: 200px;
+    object-fit: contain;
+}
+
+/* Card enhancements */
+.card {
+    border-radius: var(--border-radius);
+    border: none;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg) !important;
+}
+
+/* Button enhancements */
+.btn {
+    border-radius: var(--border-radius);
+    font-weight: 500;
+    padding: 0.5rem 1.5rem;
+    transition: all 0.2s;
+}
+
+.btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 0.25rem 0.5rem rgba(108, 29, 69, 0.2);
+}
+
+.btn-primary {
+    background-color: #311a4d;
+    border-color: #311a4d;
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: var(--primary-dark);
+    border-color: var(--primary-dark);
+    color: white;
+}
+
+.btn-outline-primary {
+    color: #311a4d;
+    border-color: #311a4d;
+}
+
+.btn-outline-primary:hover {
+    background-color: #311a4d;
+    border-color: #311a4d;
+    color: white;
+}
+
+/* Bootstrap primary color override - Force purple theme */
+/* Override ALL Bootstrap primary colors with purple */
+.bg-primary,
+.navbar.bg-primary,
+.bg-primary.bg-primary,
+[class*="bg-primary"] {
+    background-color: #311a4d !important;
+    background: #311a4d !important;
+}
+
+.text-primary,
+a.text-primary,
+.text-primary.text-primary,
+[class*="text-primary"] {
+    color: #311a4d !important;
+}
+
+.border-primary,
+[class*="border-primary"] {
+    border-color: #311a4d !important;
+}
+
+/* Override Bootstrap's default blue with purple */
+a.text-primary,
+.text-primary {
+    color: #311a4d !important;
+}
+
+a:hover.text-primary {
+    color: var(--primary-dark) !important;
+}
+
+/* Ensure all primary buttons use purple */
+.btn-primary,
+.btn-primary:focus,
+.btn-primary:active,
+.btn-primary.active {
+    background-color: #311a4d !important;
+    border-color: #311a4d !important;
+    color: white !important;
+}
+
+.btn-primary:hover {
+    background-color: var(--primary-dark) !important;
+    border-color: var(--primary-dark) !important;
+    color: white !important;
+}
+
+.btn-outline-primary,
+.btn-outline-primary:focus,
+.btn-outline-primary:active {
+    color: #311a4d !important;
+    border-color: #311a4d !important;
+    background-color: transparent !important;
+}
+
+.btn-outline-primary:hover {
+    background-color: #311a4d !important;
+    border-color: #311a4d !important;
+    color: white !important;
+}
+
+/* Form enhancements */
+.form-control, .form-select {
+    border-radius: var(--border-radius);
+    border: 1px solid #dee2e6;
+    padding: 0.75rem;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: #311a4d;
+    box-shadow: 0 0 0 0.2rem rgba(108, 29, 69, 0.25);
+}
+
+.form-label {
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+    color: var(--dark-text);
+}
+
+/* Navbar enhancements */
+.navbar {
+    box-shadow: var(--shadow);
+    padding: 1rem 0;
+    background-color: #311a4d !important;
+}
+
+.navbar.bg-primary {
+    background-color: #311a4d !important;
+}
+
+.navbar-dark {
+    background-color: #311a4d !important;
+}
+
+.navbar-dark .navbar-nav .nav-link {
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.navbar-dark .navbar-nav .nav-link:hover {
+    color: white;
+}
+
+.navbar-dark .navbar-nav .nav-link.active {
+    color: white;
+    font-weight: 600;
+}
+
+/* Alert enhancements */
+.alert {
+    border-radius: var(--border-radius);
+    border: none;
+    box-shadow: var(--shadow);
+}
+
+/* Badge enhancements */
+.badge {
+    padding: 0.5em 0.75em;
+    border-radius: var(--border-radius);
+    font-weight: 500;
+}
+
+.bg-primary {
+    background-color: #311a4d !important;
+}
+
+/* Input group enhancements */
+.input-group .form-control {
+    border-radius: var(--border-radius);
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+    width: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--light-bg);
+}
+
+::-webkit-scrollbar-thumb {
+    background: #311a4d;
+    border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--primary-dark);
+}
+
+/* Loading spinner */
+.spinner-border {
+    width: 3rem;
+    height: 3rem;
+    border-width: 0.3em;
+}
+
+/* Hero section */
+.hero-section {
+    background: linear-gradient(135deg, #311a4d 0%, var(--primary-light) 100%);
+    color: white;
+    padding: 4rem 0;
+    border-radius: 0 0 var(--border-radius) var(--border-radius);
+}
+
+/* Feature cards */
+.feature-card {
+    text-align: center;
+    padding: 2rem;
+    border-radius: var(--border-radius);
+    background: white;
+    box-shadow: var(--shadow);
+    transition: all 0.3s;
+}
+
+.feature-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-lg);
+}
+
+.feature-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+}
+
+/* Footer */
+footer {
+    background-color: var(--primary-dark) !important;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .container {
+        padding: 1rem;
+    }
+    
+    .card {
+        margin-bottom: 1rem;
+    }
+    
+    .btn {
+        width: 100%;
+        margin-bottom: 0.5rem;
+    }
+    
+    .navbar-brand img {
+        height: 30px;
+    }
+}
+
+/* Animation for page load */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.card, .alert {
+    animation: fadeIn 0.5s ease-out;
+}
+
+/* Custom utilities */
+.text-gradient {
+    background: linear-gradient(135deg, #311a4d 0%, var(--primary-light) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.shadow-custom {
+    box-shadow: 0 10px 30px rgba(108, 29, 69, 0.15);
+}
+
+/* Focus states for accessibility */
+*:focus {
+    outline: 2px solid #311a4d;
+    outline-offset: 2px;
+}
+
+button:focus, a:focus {
+    outline: 2px solid #311a4d;
+    outline-offset: 2px;
+}
