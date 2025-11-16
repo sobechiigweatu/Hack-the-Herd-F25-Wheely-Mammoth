@@ -17,6 +17,13 @@ public class AuthController {
     @Autowired
     private UserService userService;
     
+    @GetMapping("/")
+    public String home(HttpSession session, Model model) {
+        User user = (User) session.getAttribute("user");
+        model.addAttribute("user", user);
+        return "index";
+    }
+    
     @GetMapping("/login")
     public String loginPage() {
         return "login";
@@ -31,7 +38,20 @@ public class AuthController {
         if (user != null) {
             session.setAttribute("user", user);
             session.setAttribute("userId", user.getUserId());
-            return "redirect:/";
+            
+            // Redirect to intended page or home based on user type
+            String redirectUrl = (String) session.getAttribute("redirectAfterLogin");
+            if (redirectUrl != null && !redirectUrl.isEmpty()) {
+                session.removeAttribute("redirectAfterLogin");
+                return "redirect:" + redirectUrl;
+            }
+            
+            // Default redirect based on user type
+            if (user.isDriver()) {
+                return "redirect:/rides/my-rides";
+            } else {
+                return "redirect:/rides";
+            }
         } else {
             redirectAttributes.addFlashAttribute("error", "Invalid student ID or password");
             return "redirect:/login";
@@ -53,9 +73,8 @@ public class AuthController {
                           RedirectAttributes redirectAttributes) {
         try {
             User user = userService.registerUser(studentId, password, name, email, phone);
-            session.setAttribute("user", user);
-            session.setAttribute("userId", user.getUserId());
-            return "redirect:/";
+            redirectAttributes.addFlashAttribute("success", "Registration successful! Please login.");
+            return "redirect:/login";
         } catch (IllegalArgumentException e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
             return "redirect:/register";

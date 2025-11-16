@@ -27,8 +27,25 @@ public class RideController {
     private UserService userService;
     
     @GetMapping
-    public String viewRides(Model model, HttpSession session) {
-        List<Ride> rides = rideService.getAvailableRides();
+    public String viewRides(
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) Double minPrice,
+            @RequestParam(required = false) Double maxPrice,
+            @RequestParam(required = false) Integer minSeats,
+            @RequestParam(required = false) Integer maxSeats,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate,
+            Model model, HttpSession session) {
+        
+        // Use search and filter if any parameters are provided, otherwise get all available rides
+        List<Ride> rides;
+        if (keyword != null || minPrice != null || maxPrice != null || 
+            minSeats != null || maxSeats != null || startDate != null || endDate != null) {
+            rides = rideService.searchAndFilterRides(keyword, minPrice, maxPrice, minSeats, maxSeats, 
+                                                     startDate, endDate, userService);
+        } else {
+            rides = rideService.getAvailableRides();
+        }
         
         // Create a map of rideId to driver name for easy access in template
         Map<String, String> driverNames = new HashMap<>();
@@ -43,6 +60,16 @@ public class RideController {
         model.addAttribute("driverNames", driverNames);
         User currentUser = (User) session.getAttribute("user");
         model.addAttribute("currentUser", currentUser);
+        
+        // Add search parameters to model for form persistence
+        model.addAttribute("keyword", keyword != null ? keyword : "");
+        model.addAttribute("minPrice", minPrice);
+        model.addAttribute("maxPrice", maxPrice);
+        model.addAttribute("minSeats", minSeats);
+        model.addAttribute("maxSeats", maxSeats);
+        model.addAttribute("startDate", startDate);
+        model.addAttribute("endDate", endDate);
+        
         return "rides";
     }
     
@@ -56,6 +83,7 @@ public class RideController {
             model.addAttribute("error", "You must be a registered driver to create rides");
             return "redirect:/profile/driver-register";
         }
+        model.addAttribute("currentUser", user);
         return "create-ride";
     }
     

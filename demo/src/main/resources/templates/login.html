@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - Wheely Mammoth</title>
+    <link rel="icon" th:href="@{/WheelyMammoth-Photoroom.png}" href="/WheelyMammoth-Photoroom.png" type="image/png">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/style.css}">
     <!-- Force purple theme override -->
@@ -31,15 +32,21 @@
                 <div class="card shadow-lg border-0">
                     <div class="card-body p-5">
                         <div class="text-center mb-4">
-                            <img th:src="@{/WheelyMammoth.png}" src="/WheelyMammoth.png" alt="Wheely Mammoth Logo" style="height: 60px; margin-bottom: 1rem;">
-                            <h2 class="fw-bold text-primary">Wheely Mammoth</h2>
-                            <p class="text-muted">Student Rideshare Platform</p>
+                            <a th:href="@{/}" href="/" style="text-decoration: none; color: inherit;">
+                                <img th:src="@{/WheelyMammoth-Photoroom.png}" src="/WheelyMammoth-Photoroom.png" alt="Wheely Mammoth Logo" style="height: 60px; margin-bottom: 1rem;">
+                                <h2 class="fw-bold text-primary">Wheely Mammoth</h2>
+                                <p class="text-muted">Student Rideshare Platform</p>
+                            </a>
                         </div>
                         
                         <h4 class="mb-4">Login</h4>
                         
                         <div th:if="${error}" class="alert alert-danger" role="alert">
                             <span th:text="${error}"></span>
+                        </div>
+                        
+                        <div th:if="${success}" class="alert alert-success" role="alert">
+                            <span th:text="${success}"></span>
                         </div>
                         
                         <form th:action="@{/login}" method="post">
@@ -60,7 +67,7 @@
                         
                         <div class="text-center">
                             <p class="mb-0">Don't have an account? 
-                                <a th:href="@{/register}" class="text-primary fw-bold">Register here</a>
+                                <a th:href="@{/register}" href="/register" class="text-primary fw-bold">Register here</a>
                             </p>
                         </div>
                     </div>
@@ -70,5 +77,35 @@
     </div>
     
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Fix links and images when opening HTML files directly (file:// protocol)
+        (function() {
+            if (window.location.protocol === 'file:') {
+                const pathMap = {
+                    '/': 'index.html',
+                    '/rides': 'rides.html',
+                    '/rides/create': 'create-ride.html',
+                    '/rides/my-rides': 'my-rides-driver.html',
+                    '/profile': 'profile.html',
+                    '/login': 'login.html',
+                    '/register': 'register.html',
+                    '/logout': 'index.html'
+                };
+                document.querySelectorAll('a[href^="/"]').forEach(function(link) {
+                    const originalHref = link.getAttribute('href');
+                    if (pathMap[originalHref]) {
+                        link.setAttribute('href', pathMap[originalHref]);
+                    }
+                });
+                // Fix image paths
+                document.querySelectorAll('img[src^="/"]').forEach(function(img) {
+                    const originalSrc = img.getAttribute('src');
+                    if (originalSrc === '/WheelyMammoth-Photoroom.png' || originalSrc.includes('WheelyMammoth-Photoroom.png')) {
+                        img.setAttribute('src', '../static/WheelyMammoth-Photoroom.png');
+                    }
+                });
+            }
+        })();
+    </script>
 </body>
 </html>

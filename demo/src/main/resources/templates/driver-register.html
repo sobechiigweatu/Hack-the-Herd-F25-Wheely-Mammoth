@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register as Driver - Wheely Mammoth</title>
+    <link rel="icon" th:href="@{/WheelyMammoth-Photoroom.png}" href="/WheelyMammoth-Photoroom.png" type="image/png">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/style.css}">
     <!-- Force purple theme override -->
@@ -28,17 +29,36 @@
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
         <div class="container">
-            <a class="navbar-brand" th:href="@{/}">
-                <img th:src="@{/WheelyMammoth.png}" src="/WheelyMammoth.png" alt="Wheely Mammoth Logo" class="d-inline-block align-top">
+            <a class="navbar-brand d-flex align-items-center" th:href="@{/}" href="/" style="text-decoration: none;">
+                <img th:src="@{/WheelyMammoth-Photoroom.png}" src="/WheelyMammoth-Photoroom.png" alt="Wheely Mammoth Logo" class="d-inline-block align-top me-2" style="height: 40px; width: auto; filter: brightness(0) invert(1);">
+                <span class="text-white fw-bold">Wheely Mammoth</span>
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
-                    <li class="nav-item"><a class="nav-link" th:href="@{/rides}">Find Rides</a></li>
-                    <li class="nav-item"><a class="nav-link" th:href="@{/profile}">Profile</a></li>
-                    <li class="nav-item"><a class="nav-link" th:href="@{/logout}">Logout</a></li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/rides}" href="/rides">Find Rides</a>
+                    </li>
+                    <li class="nav-item" th:if="${user != null}">
+                        <a class="nav-link" th:href="@{/rides/my-rides}" href="/rides/my-rides">My Rides</a>
+                    </li>
+                    <li class="nav-item" th:if="${user != null && user.isDriver}">
+                        <a class="nav-link" th:href="@{/rides/create}" href="/rides/create">Create Ride</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/profile}" href="/profile">Profile</a>
+                    </li>
+                    <li class="nav-item" th:if="${user == null}">
+                        <a class="nav-link" th:href="@{/login}" href="/login">Login</a>
+                    </li>
+                    <li class="nav-item" th:if="${user == null}">
+                        <a class="nav-link" th:href="@{/register}" href="/register">Register</a>
+                    </li>
+                    <li class="nav-item" th:if="${user != null}">
+                        <a class="nav-link" th:href="@{/logout}" href="/logout">Logout</a>
+                    </li>
                 </ul>
             </div>
         </div>
@@ -56,19 +76,37 @@
                             <span th:text="${error}"></span>
                         </div>
 
-                        <form th:action="@{/profile/driver-register}" method="post">
+                        <form th:action="@{/profile/driver-register}" method="post" enctype="multipart/form-data">
                             <h5 class="mt-4 mb-3">Documentation</h5>
+                            <p class="text-muted small mb-3">Upload images of your driver's license and student ID for verification by Amherst College.</p>
+                            
                             <div class="mb-3">
-                                <label for="licenseImageUrl" class="form-label">Driver's License Image URL</label>
+                                <label for="licenseImage" class="form-label">Driver's License Image <span class="text-danger">*</span></label>
+                                <input type="file" class="form-control" id="licenseImage" name="licenseImage" 
+                                       accept="image/*" required>
+                                <small class="form-text text-muted">Upload a clear photo of your driver's license</small>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="studentIdImage" class="form-label">Student ID Image <span class="text-danger">*</span></label>
+                                <input type="file" class="form-control" id="studentIdImage" name="studentIdImage" 
+                                       accept="image/*" required>
+                                <small class="form-text text-muted">Upload a clear photo of your Amherst College student ID</small>
+                            </div>
+                            
+                            <div class="alert alert-info">
+                                <small><strong>Alternative:</strong> If you prefer to use image URLs instead, you can paste URLs below (leave file uploads empty)</small>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="licenseImageUrl" class="form-label">Or Driver's License Image URL</label>
                                 <input type="url" class="form-control" id="licenseImageUrl" name="licenseImageUrl" 
-                                       placeholder="https://example.com/license.jpg" required>
-                                <small class="form-text text-muted">Upload your license image to a hosting service and paste the URL here</small>
+                                       placeholder="https://example.com/license.jpg">
                             </div>
                             <div class="mb-4">
-                                <label for="studentIdImageUrl" class="form-label">Student ID Image URL</label>
+                                <label for="studentIdImageUrl" class="form-label">Or Student ID Image URL</label>
                                 <input type="url" class="form-control" id="studentIdImageUrl" name="studentIdImageUrl" 
-                                       placeholder="https://example.com/studentid.jpg" required>
-                                <small class="form-text text-muted">Upload your student ID image to a hosting service and paste the URL here</small>
+                                       placeholder="https://example.com/studentid.jpg">
                             </div>
 
                             <h5 class="mt-4 mb-3">Vehicle Information</h5>
@@ -119,6 +157,36 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Fix links and images when opening HTML files directly (file:// protocol)
+        (function() {
+            if (window.location.protocol === 'file:') {
+                const pathMap = {
+                    '/': 'index.html',
+                    '/rides': 'rides.html',
+                    '/rides/create': 'create-ride.html',
+                    '/rides/my-rides': 'my-rides-driver.html',
+                    '/profile': 'profile.html',
+                    '/login': 'login.html',
+                    '/register': 'register.html',
+                    '/logout': 'index.html'
+                };
+                document.querySelectorAll('a[href^="/"]').forEach(function(link) {
+                    const originalHref = link.getAttribute('href');
+                    if (pathMap[originalHref]) {
+                        link.setAttribute('href', pathMap[originalHref]);
+                    }
+                });
+                // Fix image paths
+                document.querySelectorAll('img[src^="/"]').forEach(function(img) {
+                    const originalSrc = img.getAttribute('src');
+                    if (originalSrc === '/WheelyMammoth-Photoroom.png' || originalSrc.includes('WheelyMammoth-Photoroom.png')) {
+                        img.setAttribute('src', '../static/WheelyMammoth-Photoroom.png');
+                    }
+                });
+            }
+        })();
+    </script>
 </body>
 </html>
 

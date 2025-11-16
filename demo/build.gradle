@@ -11,6 +11,8 @@ description = 'Demo project for Spring Boot'
 java {
 	toolchain {
 		languageVersion = JavaLanguageVersion.of(17)
+		// Gradle will auto-download Java 17 if not found
+		vendor = JvmVendorSpec.ADOPTIUM
 	}
 }
 
@@ -19,11 +21,22 @@ repositories {
 }
 
 dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter'
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework.boot:spring-boot-starter-security'
 	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity6'
+	
+	// H2 Database (for development)
+	runtimeOnly 'com.h2database:h2'
+	
+	// MySQL Database
+	runtimeOnly 'com.mysql:mysql-connector-j'
+	
+	// HTTP Client for OpenAI API
+	implementation 'org.springframework.boot:spring-boot-starter-webflux'
+	
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.springframework.security:spring-security-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'

@@ -17,6 +17,7 @@ public class User {
     private boolean isDriver;
     private double rating;        // average rating
     private int ratingCount;      // number of ratings
+    private int points;           // points for rewards (drivers earn points)
 
     // -------------------
     // Constructors
@@ -37,6 +38,7 @@ public class User {
         this.isDriver = false;
         this.rating = 0.0;
         this.ratingCount = 0;
+        this.points = 0;
     }
 
     // Full constructor for loading from a database
@@ -53,6 +55,7 @@ public class User {
         this.isDriver = isDriver;
         this.rating = rating;
         this.ratingCount = ratingCount;
+        this.points = 0;
     }
 
     // -------------------
@@ -129,6 +132,26 @@ public class User {
 
     public int getRatingCount() {
         return ratingCount;
+    }
+    
+    public int getPoints() {
+        return points;
+    }
+    
+    public void setPoints(int points) {
+        this.points = points;
+    }
+    
+    public void addPoints(int pointsToAdd) {
+        this.points += pointsToAdd;
+    }
+    
+    public boolean redeemPoints(int pointsToRedeem) {
+        if (this.points >= pointsToRedeem) {
+            this.points -= pointsToRedeem;
+            return true;
+        }
+        return false;
     }
 
     // -------------------

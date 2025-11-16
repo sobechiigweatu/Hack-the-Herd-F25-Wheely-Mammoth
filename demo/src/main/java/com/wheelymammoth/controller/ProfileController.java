@@ -4,11 +4,13 @@ import com.wheelymammoth.model.Driver;
 import com.wheelymammoth.model.User;
 import com.wheelymammoth.model.Vehicle;
 import com.wheelymammoth.service.UserService;
+import com.wheelymammoth.service.FileUploadService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
@@ -17,6 +19,9 @@ public class ProfileController {
     
     @Autowired
     private UserService userService;
+    
+    @Autowired
+    private FileUploadService fileUploadService;
     
     @GetMapping
     public String viewProfile(HttpSession session, Model model) {
@@ -67,12 +72,15 @@ public class ProfileController {
         if (user.isDriver()) {
             return "redirect:/profile";
         }
+        model.addAttribute("user", user);
         return "driver-register";
     }
     
     @PostMapping("/driver-register")
-    public String registerDriver(@RequestParam String licenseImageUrl,
-                                @RequestParam String studentIdImageUrl,
+    public String registerDriver(@RequestParam(required = false) MultipartFile licenseImage,
+                                @RequestParam(required = false) MultipartFile studentIdImage,
+                                @RequestParam(required = false) String licenseImageUrl,
+                                @RequestParam(required = false) String studentIdImageUrl,
                                 @RequestParam String make,
                                 @RequestParam String model,
                                 @RequestParam int year,
@@ -86,12 +94,33 @@ public class ProfileController {
             return "redirect:/login";
         }
         
-        Vehicle vehicle = new Vehicle(make, model, year, color, licensePlate, seats);
-        Driver driver = userService.registerDriver(user.getUserId(), licenseImageUrl, studentIdImageUrl, vehicle);
-        
-        session.setAttribute("user", driver);
-        redirectAttributes.addFlashAttribute("success", "Driver registration submitted! Waiting for approval.");
-        return "redirect:/profile";
+        try {
+            // Handle file uploads if provided
+            String finalLicenseUrl = licenseImageUrl;
+            String finalStudentIdUrl = studentIdImageUrl;
+            
+            if (licenseImage != null && !licenseImage.isEmpty()) {
+                finalLicenseUrl = fileUploadService.uploadFile(licenseImage, "licenses");
+            }
+            if (studentIdImage != null && !studentIdImage.isEmpty()) {
+                finalStudentIdUrl = fileUploadService.uploadFile(studentIdImage, "student-ids");
+            }
+            
+            if (finalLicenseUrl == null || finalStudentIdUrl == null) {
+                redirectAttributes.addFlashAttribute("error", "Please provide license and student ID images");
+                return "redirect:/profile/driver-register";
+            }
+            
+            Vehicle vehicle = new Vehicle(make, model, year, color, licensePlate, seats);
+            Driver driver = userService.registerDriver(user.getUserId(), finalLicenseUrl, finalStudentIdUrl, vehicle);
+            
+            session.setAttribute("user", driver);
+            redirectAttributes.addFlashAttribute("success", "Driver registration submitted! Waiting for approval.");
+            return "redirect:/profile";
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Error uploading files: " + e.getMessage());
+            return "redirect:/profile/driver-register";
+        }
     }
 }
 

@@ -108,5 +108,86 @@ public class RideService {
             ride.setStatus("cancelled");
         }
     }
+    
+    /**
+     * Search and filter rides based on various criteria
+     * @param keyword Search term for pickup/dropoff addresses or driver name
+     * @param minPrice Minimum price filter
+     * @param maxPrice Maximum price filter
+     * @param minSeats Minimum seats available filter
+     * @param maxSeats Maximum seats available filter
+     * @param startDate Filter rides after this date
+     * @param endDate Filter rides before this date
+     * @param userService Service to look up driver names for keyword search
+     * @return Filtered list of available rides
+     */
+    public List<Ride> searchAndFilterRides(String keyword, Double minPrice, Double maxPrice, 
+                                          Integer minSeats, Integer maxSeats,
+                                          LocalDateTime startDate, LocalDateTime endDate,
+                                          com.wheelymammoth.service.UserService userService) {
+        List<Ride> rides = getAvailableRides();
+        
+        // Filter by keyword (search in pickup/dropoff addresses)
+        if (keyword != null && !keyword.trim().isEmpty()) {
+            String keywordLower = keyword.toLowerCase().trim();
+            rides = rides.stream()
+                    .filter(r -> 
+                        (r.getPickupLocation().getAddress().toLowerCase().contains(keywordLower)) ||
+                        (r.getDropoffLocation().getAddress().toLowerCase().contains(keywordLower)) ||
+                        (userService != null && searchByDriverName(r, keywordLower, userService))
+                    )
+                    .collect(Collectors.toList());
+        }
+        
+        // Filter by price range
+        if (minPrice != null) {
+            rides = rides.stream()
+                    .filter(r -> r.getPrice() >= minPrice)
+                    .collect(Collectors.toList());
+        }
+        if (maxPrice != null) {
+            rides = rides.stream()
+                    .filter(r -> r.getPrice() <= maxPrice)
+                    .collect(Collectors.toList());
+        }
+        
+        // Filter by seats available
+        if (minSeats != null) {
+            rides = rides.stream()
+                    .filter(r -> r.getSeatsAvailable() >= minSeats)
+                    .collect(Collectors.toList());
+        }
+        if (maxSeats != null) {
+            rides = rides.stream()
+                    .filter(r -> r.getSeatsAvailable() <= maxSeats)
+                    .collect(Collectors.toList());
+        }
+        
+        // Filter by date range
+        if (startDate != null) {
+            rides = rides.stream()
+                    .filter(r -> r.getDepartureTime().isAfter(startDate) || r.getDepartureTime().isEqual(startDate))
+                    .collect(Collectors.toList());
+        }
+        if (endDate != null) {
+            rides = rides.stream()
+                    .filter(r -> r.getDepartureTime().isBefore(endDate) || r.getDepartureTime().isEqual(endDate))
+                    .collect(Collectors.toList());
+        }
+        
+        return rides;
+    }
+    
+    private boolean searchByDriverName(Ride ride, String keyword, com.wheelymammoth.service.UserService userService) {
+        try {
+            com.wheelymammoth.model.User driver = userService.getUserById(ride.getDriverId());
+            if (driver != null && driver.getName() != null) {
+                return driver.getName().toLowerCase().contains(keyword);
+            }
+        } catch (Exception e) {
+            // Ignore errors in driver lookup
+        }
+        return false;
+    }
 }
 
